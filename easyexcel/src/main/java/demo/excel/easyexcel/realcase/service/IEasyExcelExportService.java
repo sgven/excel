@@ -2,6 +2,7 @@ package demo.excel.easyexcel.realcase.service;
 
 import demo.excel.easyexcel.realcase.beans.DailyBaseData;
 import demo.excel.easyexcel.realcase.beans.DailyMileData;
+import demo.excel.easyexcel.realcase.param.EasyExcelProperty;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -20,7 +21,7 @@ public interface IEasyExcelExportService {
      * 简单list “导出”——（通过浏览器下载）
      * @param response
      * @param list
-     * @param filename
+     * @param param
      */
-    void simpleListExport(HttpServletResponse response, String filename, List list, Class clazz);
+    void simpleListExport(HttpServletResponse response, List list, EasyExcelProperty param);
 }

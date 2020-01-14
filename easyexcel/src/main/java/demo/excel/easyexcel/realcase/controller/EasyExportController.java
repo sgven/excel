@@ -3,6 +3,7 @@ package demo.excel.easyexcel.realcase.controller;
 import demo.excel.easyexcel.realcase.beans.DailyBaseData;
 import demo.excel.easyexcel.realcase.beans.DailyMileData;
 import demo.excel.easyexcel.realcase.beans.ParkingInfo;
+import demo.excel.easyexcel.realcase.param.EasyExcelProperty;
 import demo.excel.easyexcel.realcase.service.IBusinessService;
 import demo.excel.easyexcel.realcase.service.IEasyExcelExportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
- * 真实填充导出案例
+ * 真实导出案例
  */
 @RestController(value = "easyExport")
 public class EasyExportController {
@@ -51,7 +52,10 @@ public class EasyExportController {
     @RequestMapping(value = "exportParkingInfo", method = RequestMethod.GET)
     public void exportParkingInfo(HttpServletRequest request, HttpServletResponse response, String vids) throws Exception{
         List<ParkingInfo> list = businessService.getParkingInfos(vids);
-        easyExcelExportService.simpleListExport(response, "停车信息", list, ParkingInfo.class);
+        EasyExcelProperty param = new EasyExcelProperty();
+        param.setFileName("停车信息");
+        param.setClazz(ParkingInfo.class);
+        easyExcelExportService.simpleListExport(response, list, param);
     }
 
 }

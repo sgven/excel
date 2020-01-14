@@ -8,8 +8,11 @@ import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import demo.excel.easyexcel.realcase.beans.DailyBaseData;
 import demo.excel.easyexcel.realcase.beans.DailyMileData;
+import demo.excel.easyexcel.realcase.handler.DefaultHeadHandler;
+import demo.excel.easyexcel.realcase.param.EasyExcelProperty;
 import demo.excel.easyexcel.realcase.service.IEasyExcelExportService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -58,8 +61,15 @@ public class EasyExcelExportServiceImpl implements IEasyExcelExportService {
     }
 
     @Override
-    public void simpleListExport(HttpServletResponse response, String filename, List list, Class clazz) {
+    public void simpleListExport(HttpServletResponse response, List list, EasyExcelProperty param) {
         try {
+            String filename = param.getFileName();
+            String titleName = param.getTitleName();
+            String sheetName = param.getSheetName();
+            Class clazz = param.getClazz();
+            Assert.notNull(filename, "文件名不能为空");
+            Assert.notNull(clazz, "导出实体类不能为空");
+
             response.setContentType("application/vnd.ms-excel");
             response.setCharacterEncoding("utf-8");
             // URLEncoder.encode可以防止中文乱码
@@ -69,6 +79,9 @@ public class EasyExcelExportServiceImpl implements IEasyExcelExportService {
             ExcelWriterBuilder excelWriterBuilder = EasyExcel.write(response.getOutputStream(), clazz)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()) // 自动列宽（不太精确）
                     .autoCloseStream(Boolean.FALSE); // 这里需要设置不关闭流
+
+            new DefaultHeadHandler().handle(excelWriterBuilder, param);
+
             ExcelWriter excelWriter = excelWriterBuilder.build();
             WriteSheet writeSheet = EasyExcel.writerSheet().build();
             excelWriter.write(list, writeSheet);
