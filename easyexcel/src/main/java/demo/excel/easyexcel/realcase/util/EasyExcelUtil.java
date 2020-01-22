@@ -6,6 +6,7 @@ import com.alibaba.excel.analysis.ExcelReadExecutor;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.read.metadata.ReadSheet;
+import demo.excel.easyexcel.demo.read.ReadDemoData;
 import demo.excel.easyexcel.realcase.listener.AbstractReadListener;
 import demo.excel.easyexcel.realcase.listener.NoModleDataListener;
 
@@ -38,39 +39,76 @@ public class EasyExcelUtil {
             // 第一个文件不跳过表头
             int skipCount = i == 0 ? 0 : skipRowCount;
             NoModleDataListener readListener = new NoModleDataListener(skipCount);
-            all.addAll(read(files.get(i), readListener));
+            all.addAll(readAllSheet(files.get(i), readListener, null, 0));
         }
         return all;
     }
 
     /**
-     * 读取文件
+     * 读取全部sheet
      * @param file
      * @param readListener
+     * @param head  表头class
+     * @param headRowNumber 表头的行数
      * @return
      * @throws Exception
      */
-    public static List read(File file, AbstractReadListener readListener) throws Exception {
+    public static List readAllSheet(File file, AbstractReadListener readListener, Class head, int headRowNumber) throws Exception {
         if (file == null || !file.getName().toLowerCase().endsWith("xlsx") && !file.getName().toLowerCase().endsWith("xls")) {
             throw new RuntimeException("文件格式错误");
         }
-        return read(new FileInputStream(file), readListener);
+        return readAllSheet(new FileInputStream(file), readListener, head, headRowNumber);
     }
 
     /**
-     * 读取输入流
+     * 读取全部sheet
      * @param inputStream
      * @param readListener
+     * @param head  表头class
+     * @param headRowNumber 表头的行数
      * @return
      * @throws Exception
      */
-    public static List read(InputStream inputStream, AbstractReadListener readListener) throws Exception {
-        ExcelReader reader = getReader(inputStream, readListener);
+    public static List readAllSheet(InputStream inputStream, AbstractReadListener readListener, Class head, int headRowNumber) throws Exception {
+        ExcelReader reader = getReader(inputStream, readListener, head, headRowNumber);
         ExcelReadExecutor excelReadExecutor = reader.excelExecutor();
         List<ReadSheet> sheets = excelReadExecutor.sheetList();
         for (ReadSheet sheet : sheets) {
             reader.read(sheet);
         }
+        reader.finish();
+        return readListener.getDatas();
+    }
+
+    /**
+     * 读取单个sheet
+     * @param file
+     * @param readListener
+     * @param head  表头class
+     * @param headRowNumber 表头的行数
+     * @return
+     * @throws Exception
+     */
+    public static List readSingleSheet(File file, AbstractReadListener readListener, Class head, int headRowNumber) throws Exception {
+        if (file == null || !file.getName().toLowerCase().endsWith("xlsx") && !file.getName().toLowerCase().endsWith("xls")) {
+            throw new RuntimeException("文件格式错误");
+        }
+        return readSingleSheet(new FileInputStream(file), readListener, head, headRowNumber);
+    }
+
+    /**
+     * 读取单个sheet
+     * @param inputStream
+     * @param readListener
+     * @param head  表头class
+     * @param headRowNumber 表头的行数
+     * @return
+     * @throws Exception
+     */
+    public static List readSingleSheet(InputStream inputStream, AbstractReadListener readListener, Class head, int headRowNumber) throws Exception {
+        ExcelReader reader = getReader(inputStream, readListener, head, headRowNumber);
+        ReadSheet readSheet = EasyExcel.readSheet(0).build();
+        reader.read(readSheet);
         reader.finish();
         return readListener.getDatas();
     }
@@ -87,12 +125,15 @@ public class EasyExcelUtil {
         return back;
     }
 
-    private static ExcelReader getReader(InputStream inputStream, ReadListener readListener) {
+    private static ExcelReader getReader(InputStream inputStream, ReadListener readListener, Class head, int headRowNumber) {
         ExcelReaderBuilder readerBuilder = EasyExcel.read(inputStream);
         if (readListener != null) {
             readerBuilder.registerReadListener(readListener);
         }
-        readerBuilder.headRowNumber(0);
+        if (head != null) {
+            readerBuilder.head(head);
+        }
+        readerBuilder.headRowNumber(headRowNumber);
         return readerBuilder.build();
     }
 

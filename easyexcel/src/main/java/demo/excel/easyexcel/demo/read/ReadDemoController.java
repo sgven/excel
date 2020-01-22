@@ -1,5 +1,6 @@
 package demo.excel.easyexcel.demo.read;
 
+import demo.excel.easyexcel.demo.util.TestFileUtil;
 import demo.excel.easyexcel.realcase.listener.NoModleDataListener;
 import demo.excel.easyexcel.realcase.util.EasyExcelUtil;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,16 @@ public class ReadDemoController {
 
     @RequestMapping(value = "simpleRead")
     public void simpleRead() throws Exception {
+        // 有个很重要的点 DemoDataListener 不能被spring管理，要每次读取excel都要new,然后里面用到spring可以构造方法传进去
+//        EasyExcel.read(fileName, ReadDemoData.class, new ReadListener()).sheet().doRead();
+        // 无表头
+        String noheadFileName = TestFileUtil.getPath() + "demo" + File.separator + "no_head_list.xlsx";
+        List list0 = EasyExcelUtil.readSingleSheet(new File(noheadFileName), new ReadListener(), ReadDemoData.class, 0);
+        // 有一行表头
+        String oneheadFileName = TestFileUtil.getPath() + "demo" + File.separator + "one_head_list.xlsx";
+        List list1 = EasyExcelUtil.readSingleSheet(new File(oneheadFileName), new ReadListener(), ReadDemoData.class, 1);
+        System.out.println("指定对象读0：" + list0.size());
+        System.out.println("指定对象读1：" + list1.size());
     }
 
     @RequestMapping(value = "mergeRead")
@@ -41,7 +52,7 @@ public class ReadDemoController {
                     // 第一个文件不跳过表头
                     int skipCount = i == 0 ? 0 : 2;
                     NoModleDataListener readListener = new NoModleDataListener(skipCount);
-                    all.addAll(EasyExcelUtil.read(excelFiles.get(i), readListener));
+                    all.addAll(EasyExcelUtil.readAllSheet(excelFiles.get(i), readListener, null, 0));
                 }
                 System.out.println("读取行数：" + all.size());
             }
