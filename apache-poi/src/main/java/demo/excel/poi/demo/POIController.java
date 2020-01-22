@@ -24,7 +24,7 @@ public class POIController {
     public void merge(HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType("application/vnd.ms-excel");
         response.setCharacterEncoding("utf-8");
-        String fileName = URLEncoder.encode("行程_" + System.currentTimeMillis(), "UTF-8");
+        String fileName = URLEncoder.encode("合并_" + System.currentTimeMillis(), "UTF-8");
         response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
         mergeExcel(response);
     }
