@@ -11,12 +11,15 @@ import demo.excel.easyexcel.realcase.beans.DailyMileData;
 import demo.excel.easyexcel.realcase.handler.DefaultHeadHandler;
 import demo.excel.easyexcel.realcase.param.EasyExcelProperty;
 import demo.excel.easyexcel.realcase.service.IEasyExcelExportService;
+import demo.excel.easyexcel.realcase.util.EasyExcelUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,6 +99,29 @@ public class EasyExcelExportServiceImpl implements IEasyExcelExportService {
             map.put("status", "failure");
             map.put("message", "下载文件失败" + e.getMessage());
 //            response.getWriter().println(JSON.toJSONString(map));
+        }
+    }
+
+    @Override
+    public void merge(ServletOutputStream outputStream) throws Exception {
+        // 项目根目录
+        String proFilePath = System.getProperty("user.dir");
+        String dirPath = proFilePath + File.separator + "temp";
+        File dir = new File(dirPath);
+        if (!dir.exists()) {// 创建临时目录
+            dir.mkdir();
+        }
+        File[] files = dir.listFiles();
+        if (files != null && files.length > 0) {
+            List<File> excelFiles = new ArrayList<>();
+            for (File file : files) {
+                if (file.getName().toLowerCase().endsWith(".xlsx") || file.getName().toLowerCase().endsWith(".xls")) {
+                    excelFiles.add(file);
+                }
+            }
+            if (excelFiles.size() > 0) {
+                EasyExcelUtil.merge2OneSheet(outputStream, excelFiles, 2);
+            }
         }
     }
 

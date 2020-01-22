@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
  * 真实导出案例
  */
-@RestController(value = "easyExport")
+@RestController()
+@RequestMapping(value = "easyExport")
 public class EasyExportController {
 
     @Autowired
@@ -56,6 +58,21 @@ public class EasyExportController {
         param.setFileName("停车信息");
         param.setClazz(ParkingInfo.class);
         easyExcelExportService.simpleListExport(response, list, param);
+    }
+
+    /**
+     * 合并下载多个excel
+     * @param request
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "merge")
+    public void merge(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.setContentType("application/vnd.ms-excel");
+        response.setCharacterEncoding("utf-8");
+        String fileName = URLEncoder.encode("合并_" + System.currentTimeMillis(), "UTF-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+        easyExcelExportService.merge(response.getOutputStream());
     }
 
 }

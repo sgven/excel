@@ -4,6 +4,7 @@ import demo.excel.easyexcel.realcase.beans.DailyBaseData;
 import demo.excel.easyexcel.realcase.beans.DailyMileData;
 import demo.excel.easyexcel.realcase.param.EasyExcelProperty;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -24,4 +25,10 @@ public interface IEasyExcelExportService {
      * @param param
      */
     void simpleListExport(HttpServletResponse response, List list, EasyExcelProperty param);
+
+    /**
+     * 合并多个excel文件
+     * @param outputStream
+     */
+    void merge(ServletOutputStream outputStream) throws Exception;
 }
